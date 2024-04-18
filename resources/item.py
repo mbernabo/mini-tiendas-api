@@ -1,10 +1,9 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
-from sqlalchemy.exc import SQLAlchemyError
 
 from db import db
 from schemas import ItemSchema, SQLAlchemyErrorSchema
-from models import ItemModel
+from models import ItemModel, StoreModel
 from utils import intentar_commit
 
 
@@ -23,9 +22,19 @@ class ItemAPI(MethodView):
     @blp.arguments(ItemSchema)
     @blp.response(201, ItemSchema)
     def post(self, data):
+
+        StoreModel.query.get_or_404(data['store_id'])
         new_item = ItemModel(**data)
 
         db.session.add(new_item)
         intentar_commit()
 
         return new_item
+
+
+@blp.route('item/<int:item_id>')
+class ItemsApi(MethodView):
+    @blp.doc(description='Devuelve la información de un item por ID', summary='Devuelve un item por ID')
+    @blp.response(200, ItemSchema)
+    def get(self):
+        pass

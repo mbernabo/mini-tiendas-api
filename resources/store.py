@@ -1,9 +1,8 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
-from sqlalchemy.exc import SQLAlchemyError
 
 from db import db
-from schemas import StoreSchema, SQLAlchemyErrorSchema
+from schemas import StoreSchema, SQLAlchemyErrorSchema, ItemSchema
 from models import StoreModel
 from utils import intentar_commit
 
@@ -30,3 +29,12 @@ class StoreAPI(MethodView):
         intentar_commit()
 
         return new_store
+
+
+@blp.route('store/<int:store_id>/items')
+class StoreItemsAPI(MethodView):
+    @blp.doc(description='Devuelve los items de una tienda por ID', summary='Devuelve items de una tienda')
+    @blp.response(200, ItemSchema(many=True))
+    def get(self, store_id):
+        store = StoreModel.query.get_or_404(store_id)
+        return store.items

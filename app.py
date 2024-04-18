@@ -1,6 +1,8 @@
 from flask import Flask
 from flask_smorest import Api
 from flask_migrate import Migrate
+from flask_cors import CORS
+
 
 import os
 
@@ -8,10 +10,14 @@ from db import db
 
 from resources.store import blp as StoreBlueprint
 from resources.item import blp as ItemBlueprint
+from resources.user import blp as UserBlueprint
 
 
 def create_app(db_url=None):
     app = Flask(__name__)
+
+    CORS(app)
+
     app.config["PROPAGATE_EXCEPTIONS"] = True
     app.config["API_TITLE"] = "Mini Tiendas REST API"
     app.config["API_VERSION"] = "v1"
@@ -34,5 +40,6 @@ def create_app(db_url=None):
 
     api.register_blueprint(StoreBlueprint)
     api.register_blueprint(ItemBlueprint)
+    api.register_blueprint(UserBlueprint)
 
     return app
