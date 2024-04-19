@@ -79,3 +79,12 @@ class SQLAlchemyErrorSchema(Schema):
     code = fields.Int()
     message = fields.Str()
     status = fields.Str()
+
+
+class LoginSchema(Schema):
+    access_token = fields.Str(dump_only=True)
+    refresh_token = fields.Str(dump_only=True)
+
+
+class RefreshSchema(Schema):
+    access_token = fields.Str(dump_only=True)

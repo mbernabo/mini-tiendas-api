@@ -12,7 +12,7 @@ blp = Blueprint('Stores', __name__,
 
 
 @blp.route('/store')
-class StoreAPI(MethodView):
+class StoresAPI(MethodView):
     @blp.doc(description="Hace un query.all() sobre el Modelo Store", summary='Devuelve todos las Tiendas')
     @blp.response(200, StoreSchema(many=True))
     def get(self):
@@ -29,6 +29,14 @@ class StoreAPI(MethodView):
         intentar_commit()
 
         return new_store
+
+
+@blp.route('/store/<int:store_id>')
+class StoreAPI(MethodView):
+    @blp.doc(description="Devuelve la información de una tienda por ID", summary='Devuelve una Tienda')
+    @blp.response(200, StoreSchema)
+    def get(self, store_id):
+        return StoreModel.query.get_or_404(store_id)
 
 
 @blp.route('store/<int:store_id>/items')
