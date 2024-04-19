@@ -1,5 +1,6 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
+from flask_jwt_extended import jwt_required
 
 from db import db
 from schemas import ItemSchema, SQLAlchemyErrorSchema
@@ -21,6 +22,7 @@ class ItemAPI(MethodView):
     @blp.doc(description='Crea un item en la DB', summary='Crea un Item')
     @blp.arguments(ItemSchema)
     @blp.response(201, ItemSchema)
+    @jwt_required
     def post(self, data):
 
         StoreModel.query.get_or_404(data['store_id'])

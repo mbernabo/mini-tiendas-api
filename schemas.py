@@ -45,7 +45,6 @@ class ItemUpdateSchema(Schema):
 
 
 class StoreSchema(PlainStoreSchema):
-    user_id = fields.Int(required=True)
     items = fields.List(fields.Nested(PlainItemSchema()), dump_only=True)
 
 
