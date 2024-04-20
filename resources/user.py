@@ -1,11 +1,13 @@
+from flask import jsonify
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
-from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity, jwt_required, get_current_user
+from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity, jwt_required, get_jwt, get_current_user
 
 from db import db
 from schemas import UserSchema, SQLAlchemyErrorSchema, LoginSchema, RefreshSchema
 from models import UserModel
 from utils import intentar_commit
+from blocklist import BLOCKLIST
 
 blp = Blueprint('Users', __name__,
                 description='Operaciones con usuarios', url_prefix='/api')
@@ -70,3 +72,17 @@ class TokenRefreshAPI(MethodView):
         new_token = create_access_token(identity=current_user, fresh=False)
 
         return {'access_token': new_token}
+
+
+@blp.route('/logout')
+class LogOutUser(MethodView):
+    @blp.doc(description="Revoca el access y refresh token", summary='Desloguea a un usuario')
+    @blp.response(200)
+    @jwt_required(verify_type=False)
+    def delete(self):
+        token = get_jwt()
+        jti = token["jti"]
+        ttype = token["type"]
+        BLOCKLIST.add(jti)
+
+        return jsonify(mensaje=f'{ttype.capitalize()} token revocado')
