@@ -23,6 +23,7 @@ class PlainItemSchema(Schema):
         min=3, max=70, error=error_messages['length']))
     price = fields.Float(required=True)
     description = fields.Str()
+    store_id = fields.Int(dump_only=True)
 
     @validates('price')
     def validate_price(self, value):
@@ -35,7 +36,7 @@ class PlainItemSchema(Schema):
 
 
 class ItemSchema(PlainItemSchema):
-    store_id = fields.Int(required=True, load_only=True)
+    store_id = fields.Int(required=True)
     store = fields.Nested(PlainStoreSchema(), dump_only=True)
 
 
