@@ -17,11 +17,15 @@ from blocklist import BLOCKLIST
 
 load_dotenv()
 
+
 def create_app(db_url=None):
     app = Flask(__name__)
 
     # Creo que no hace falta para el response, creo que sí.. Porque también lo uso en el after_request para manejar la renovación automática
-    CORS(app, supports_credentials=True)
+    # CORS(app, supports_credentials=True)
+    # Segunda opción de CORS
+    CORS(app, origins=["http://localhost:5173"], headers=['Content-Type'],
+         expose_headers=['Access-Control-Allow-Origin'], supports_credentials=True)
 
     app.config["PROPAGATE_EXCEPTIONS"] = True
     app.config["API_TITLE"] = "Mini Tiendas REST API"
