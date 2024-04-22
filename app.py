@@ -1,8 +1,9 @@
+from datetime import datetime, timedelta, timezone
 from flask import Flask, jsonify
 from flask_smorest import Api
 from flask_migrate import Migrate
 from flask_cors import CORS
-from flask_jwt_extended import JWTManager
+from flask_jwt_extended import JWTManager, create_access_token, get_jwt, get_jwt_identity, set_access_cookies
 
 
 import os
@@ -18,7 +19,8 @@ from blocklist import BLOCKLIST
 def create_app(db_url=None):
     app = Flask(__name__)
 
-    CORS(app)
+    # Creo que no hace falta para el response, creo que sí.. Porque también lo uso en el after_request para manejar la renovación automática
+    CORS(app, supports_credentials=True)
 
     app.config["PROPAGATE_EXCEPTIONS"] = True
     app.config["API_TITLE"] = "Mini Tiendas REST API"
@@ -34,7 +36,14 @@ def create_app(db_url=None):
         "DATABASE_URL", "sqlite:///data.db")
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["JWT_SECRET_KEY"] = '271474320750803842679971001457890860447'
-
+    # Esto debe ir en True en PROD para que sea solo a a través de HTTPS
+    app.config["JWT_COOKIE_SECURE"] = True
+    # Pruebas fucking cookies
+    app.config['JWT_COOKIE_SAMESITE'] = 'None'
+    # app.config['JWT_COOKIE_CSRF_PROTECT'] = False  # True en Prod
+    # app.config['CORS_EXPOSE_HEADERS'] = '*'
+    app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 
     db.init_app(app)
 
@@ -109,5 +118,20 @@ def create_app(db_url=None):
     api.register_blueprint(StoreBlueprint)
     api.register_blueprint(ItemBlueprint)
     api.register_blueprint(UserBlueprint)
+
+    @app.after_request
+    def refresh_expiring_jwts(response):
+        try:
+            exp_timestamp = get_jwt()["exp"]
+            now = datetime.now(timezone.utc)
+            target_timestamp = datetime.timestamp(now + timedelta(minutes=30))
+            if target_timestamp > exp_timestamp:
+                access_token = create_access_token(
+                    identity=get_jwt_identity(), fresh=False)
+                set_access_cookies(response, access_token)
+            return response
+        except (RuntimeError, KeyError):
+            # Case where there is not a valid JWT. Just return the original response
+            return response
 
     return app

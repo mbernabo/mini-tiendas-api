@@ -1,7 +1,7 @@
 from flask import jsonify
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
-from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity, jwt_required, get_jwt, get_current_user
+from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity, jwt_required, get_jwt, set_access_cookies, set_refresh_cookies, get_current_user
 
 from db import db
 from schemas import UserSchema, SQLAlchemyErrorSchema, LoginSchema, RefreshSchema
@@ -54,10 +54,11 @@ class UserLoginAPI(MethodView):
     def post(self, data):
         user = UserModel.query.filter_by(email=data['email']).first()
         if user and user.password == data['password']:
+            response = jsonify({'message:': 'Usuario logueado exitosamente'})
             access_token = create_access_token(identity=user.id, fresh=True)
-            refresh_token = create_refresh_token(identity=user.id)
-
-            return {'access_token': access_token, 'refresh_token': refresh_token}
+            set_access_cookies(response, access_token)
+            print(response.__dict__)
+            return response
         else:
             abort(401, message='Credenciales inválidas')
 
