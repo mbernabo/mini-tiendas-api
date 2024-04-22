@@ -22,6 +22,7 @@ def create_app(db_url=None):
     app = Flask(__name__)
 
     # Creo que no hace falta para el response, creo que sí.. Porque también lo uso en el after_request para manejar la renovación automática
+    # Chequear si hace falta poner origins y que sea solo para el Front
     CORS(app, supports_credentials=True)
     # Segunda opción de CORS
     # CORS(app, origins=["http://localhost:5173"], headers=['Content-Type'],
@@ -49,6 +50,8 @@ def create_app(db_url=None):
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
     # Pruebas fucking cookies
     app.config['JWT_COOKIE_SAMESITE'] = 'None'
+    app.config['JWT_COOKIE_DOMAIN'] = 'localhost'
+
     # app.config['JWT_COOKIE_CSRF_PROTECT'] = False  # True en Prod
     # app.config['CORS_EXPOSE_HEADERS'] = '*'
 
