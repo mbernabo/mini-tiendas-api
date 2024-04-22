@@ -1,3 +1,4 @@
+from flask import request
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -17,6 +18,9 @@ class StoresAPI(MethodView):
     @blp.doc(description="Hace un query.all() sobre el Modelo Store", summary='Devuelve todos las Tiendas')
     @blp.response(200, StoreSchema(many=True))
     def get(self):
+        #Solo de prueba
+        csrf_access_token = request.cookies.get('csrf_access_token')
+        print(csrf_access_token)
         return StoreModel.query.all()
 
     @blp.doc(description='Crea una tienda en la DB', summary='Crea una Tienda')

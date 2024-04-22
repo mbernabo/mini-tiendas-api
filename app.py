@@ -22,10 +22,12 @@ def create_app(db_url=None):
     app = Flask(__name__)
 
     # Creo que no hace falta para el response, creo que sí.. Porque también lo uso en el after_request para manejar la renovación automática
-    # CORS(app, supports_credentials=True)
+    CORS(app, supports_credentials=True)
     # Segunda opción de CORS
-    CORS(app, origins=["http://localhost:5173"], headers=['Content-Type'],
-         expose_headers=['Access-Control-Allow-Origin'], supports_credentials=True)
+    # CORS(app, origins=["http://localhost:5173"], headers=['Content-Type'],
+    #      expose_headers=['Access-Control-Allow-Origin'], supports_credentials=True)
+    # tercera
+    # CORS(app, origins='http://localhost:5173', supports_credentials=True)
 
     app.config["PROPAGATE_EXCEPTIONS"] = True
     app.config["API_TITLE"] = "Mini Tiendas REST API"
@@ -43,12 +45,12 @@ def create_app(db_url=None):
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
     # Esto debe ir en True en PROD para que sea solo a a través de HTTPS
     app.config["JWT_COOKIE_SECURE"] = True
+    app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
     # Pruebas fucking cookies
     app.config['JWT_COOKIE_SAMESITE'] = 'None'
     # app.config['JWT_COOKIE_CSRF_PROTECT'] = False  # True en Prod
     # app.config['CORS_EXPOSE_HEADERS'] = '*'
-    app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
-    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 
     db.init_app(app)
 
