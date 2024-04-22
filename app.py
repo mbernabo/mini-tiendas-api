@@ -4,7 +4,7 @@ from flask_smorest import Api
 from flask_migrate import Migrate
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, get_jwt, get_jwt_identity, set_access_cookies
-
+from dotenv import load_dotenv
 
 import os
 
@@ -15,6 +15,7 @@ from resources.item import blp as ItemBlueprint
 from resources.user import blp as UserBlueprint
 from blocklist import BLOCKLIST
 
+load_dotenv()
 
 def create_app(db_url=None):
     app = Flask(__name__)
@@ -35,7 +36,7 @@ def create_app(db_url=None):
     app.config["SQLALCHEMY_DATABASE_URI"] = db_url or os.getenv(
         "DATABASE_URL", "sqlite:///data.db")
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.config["JWT_SECRET_KEY"] = '271474320750803842679971001457890860447'
+    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
     # Esto debe ir en True en PROD para que sea solo a a través de HTTPS
     app.config["JWT_COOKIE_SECURE"] = True
     # Pruebas fucking cookies
