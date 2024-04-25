@@ -25,9 +25,7 @@ class ItemAPI(MethodView):
     @jwt_required()
     def post(self, data):
         user_id = get_jwt_identity()
-        tienda_user = StoreModel.query.get(data['store_id'])
-        if not tienda_user:
-            abort(404, message='Tienda no encontrada')
+        tienda_user = StoreModel.query.get_or_404(data['store_id'])
 
         if tienda_user.user_id != user_id:
             abort(401, message='No está autorizado a utilizar esta tienda')
@@ -46,3 +44,22 @@ class ItemsApi(MethodView):
     @blp.response(200, ItemSchema)
     def get(self):
         pass
+
+    @blp.doc(description='Permite editar la información de un item por ID', summary='Edita un item por ID')
+    @blp.arguments(ItemSchema)
+    @blp.response(200, ItemSchema)
+    def put(self, data, item_id):
+        pass
+
+    @blp.doc(description='Borra un item por ID', summary='Borra un item por ID')
+    @blp.response(200, description='Borrado exitoso', example={'message': 'Item borrado de forma exitosa'})
+    @jwt_required()
+    def delete(self, item_id):
+        item = ItemModel.query.get_or_404(item_id)
+        user_id = get_jwt_identity()
+        if item.store.user_id == user_id:
+            db.session.delete(item)
+            intentar_commit()
+            return {'message': 'Item borrado de forma exitosa'}
+        else:
+            abort(401, message='No tiene derechos para realizar esta acción')

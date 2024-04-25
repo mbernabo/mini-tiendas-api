@@ -18,7 +18,7 @@ class StoresAPI(MethodView):
     @blp.doc(description="Hace un query.all() sobre el Modelo Store", summary='Devuelve todos las Tiendas')
     @blp.response(200, StoreSchema(many=True))
     def get(self):
-        #Solo de prueba
+        # Solo de prueba
         csrf_access_token = request.cookies.get('csrf_access_token')
         print(csrf_access_token)
         return StoreModel.query.all()
@@ -54,6 +54,19 @@ class StoreAPI(MethodView):
     @blp.response(200, StoreSchema)
     def get(self, store_id):
         return StoreModel.query.get_or_404(store_id)
+
+    @blp.doc(description="Borra una tienda por ID", summary='Borra una Tienda')
+    @blp.response(200, description='Borrado exitoso', example={'message': 'Tienda borrada exitosamente'})
+    @jwt_required()
+    def delete(self, store_id):
+        store = StoreModel.query.get_or_404(store_id)
+        user_id = get_jwt_identity()
+        if store.user_id == user_id:
+            db.session.delete(store)
+            intentar_commit()
+            return {'message': 'Tienda borrada exitosamente'}
+        else:
+            abort(401, message='No tiene derechos para realizar esta acción')
 
 
 @blp.route('/store/<int:store_id>/items')

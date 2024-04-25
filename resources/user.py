@@ -54,11 +54,9 @@ class UserLoginAPI(MethodView):
     def post(self, data):
         user = UserModel.query.filter_by(email=data['email']).first()
         if user and user.password == data['password']:
-            response = jsonify({'message:': 'Usuario logueado exitosamente'})
             access_token = create_access_token(identity=user.id, fresh=True)
-            set_access_cookies(response, access_token)
-            print(response.__dict__)
-            return response
+            refresh_token = create_refresh_token(user.id)
+            return {"access_token": access_token, "refresh_token": refresh_token}
         else:
             abort(401, message='Credenciales inválidas')
 

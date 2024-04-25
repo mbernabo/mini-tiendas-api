@@ -1,7 +1,7 @@
 from db import db
 
-
 class ItemModel(db.Model):
+    __versioned__ = {}
     __tablename__ = 'items'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(70), nullable=False)
