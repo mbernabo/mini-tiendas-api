@@ -14,7 +14,10 @@ from db import db
 from resources.store import blp as StoreBlueprint
 from resources.item import blp as ItemBlueprint
 from resources.user import blp as UserBlueprint
+from resources.auditoria import blp as AuditoriaBlueprint
 from blocklist import BLOCKLIST
+from audit import register_audit_events
+
 
 load_dotenv()
 
@@ -50,7 +53,7 @@ def create_app(db_url=None):
     # app.config["JWT_COOKIE_SECURE"] = True
     # app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
     # app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1) #
-    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=1)
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=100)
 
     # Pruebas fucking cookies
     # app.config['JWT_COOKIE_SAMESITE'] = 'None'
@@ -59,10 +62,11 @@ def create_app(db_url=None):
     # app.config['JWT_COOKIE_CSRF_PROTECT'] = False  # True en Prod
     # app.config['CORS_EXPOSE_HEADERS'] = '*'
 
-    
     db.init_app(app)
 
     Migrate(app, db)
+
+    register_audit_events(db)
 
     jwt = JWTManager(app)
 
@@ -133,6 +137,7 @@ def create_app(db_url=None):
     api.register_blueprint(StoreBlueprint)
     api.register_blueprint(ItemBlueprint)
     api.register_blueprint(UserBlueprint)
+    api.register_blueprint(AuditoriaBlueprint)
 
     @app.after_request
     def refresh_expiring_jwts(response):

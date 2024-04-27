@@ -2,6 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
+
 # Configura la convención de nomenclatura personalizada
 db.metadata.naming_convention = {
     'pk': 'pk_%(table_name)s',
@@ -10,3 +11,4 @@ db.metadata.naming_convention = {
     'uq': 'uq_%(table_name)s_%(column_0_name)s',
     'ck': 'ck_%(table_name)s_%(constraint_name)s',
 }
+

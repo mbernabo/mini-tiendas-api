@@ -31,7 +31,7 @@ class StoresAPI(MethodView):
     def post(self, data):
         user_id = get_jwt_identity()
         new_store = StoreModel(user_id=user_id, **data)
-
+        db.session.info['user_id'] = user_id
         db.session.add(new_store)
         intentar_commit()
 
