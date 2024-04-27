@@ -15,7 +15,7 @@ def register_audit_events(db):
                 operation = 'CREATE'
                 values = json.dumps({c.name: getattr(obj, c.name)
                                     for c in obj.__table__.columns})
-                log_audit_event(obj, operation, user_id, {}, values)
+                log_audit_event(obj, operation, user_id, None, values)
 
         for obj in session.dirty:
             if isinstance(obj, (StoreModel, ItemModel, TagModel)):
@@ -32,4 +32,4 @@ def register_audit_events(db):
                 operation = 'DELETE'
                 values = json.dumps({c.name: getattr(obj, c.name)
                                     for c in obj.__table__.columns})
-                log_audit_event(obj, operation, user_id, values, {})
+                log_audit_event(obj, operation, user_id, values, None)
