@@ -31,6 +31,7 @@ class ItemAPI(MethodView):
             abort(401, message='No está autorizado a utilizar esta tienda')
 
         new_item = ItemModel(**data)
+        db.session.info['user_id'] = user_id
 
         db.session.add(new_item)
         intentar_commit()
@@ -48,8 +49,23 @@ class ItemsApi(MethodView):
     @blp.doc(description='Permite editar la información de un item por ID', summary='Edita un item por ID')
     @blp.arguments(ItemSchema)
     @blp.response(200, ItemSchema)
+    @jwt_required()
     def put(self, data, item_id):
-        pass
+        user_id = get_jwt_identity()
+        item = ItemModel.query.get_or_404(item_id)
+        if item.store.user_id == user_id:
+            for key, value in data.items():
+                setattr(item, key, value)
+        else:
+            abort(401, message='No está autorizado a modificar este item')
+        
+        db.session.info['user_id'] = user_id
+        intentar_commit()
+        return item
+
+
+
+
 
     @blp.doc(description='Borra un item por ID', summary='Borra un item por ID')
     @blp.response(200, description='Borrado exitoso', example={'message': 'Item borrado de forma exitosa'})
