@@ -54,18 +54,18 @@ class ItemsApi(MethodView):
         user_id = get_jwt_identity()
         item = ItemModel.query.get_or_404(item_id)
         if item.store.user_id == user_id:
-            for key, value in data.items():
-                setattr(item, key, value)
+            # Reviso si el item pertenece al store que envía el cliente:
+            if item.store_id == data.get('store_id'):
+                for key, value in data.items():
+                    setattr(item, key, value)
+            else:
+                abort(400, message='El item solicitado no pertenece a esta tienda')
         else:
             abort(401, message='No está autorizado a modificar este item')
-        
+
         db.session.info['user_id'] = user_id
         intentar_commit()
         return item
-
-
-
-
 
     @blp.doc(description='Borra un item por ID', summary='Borra un item por ID')
     @blp.response(200, description='Borrado exitoso', example={'message': 'Item borrado de forma exitosa'})
