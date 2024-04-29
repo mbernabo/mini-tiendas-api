@@ -17,13 +17,12 @@ from resources.user import blp as UserBlueprint
 from resources.auditoria import blp as AuditoriaBlueprint
 from blocklist import BLOCKLIST
 from audit import register_audit_events
-
-
-load_dotenv()
+from models import UserModel
 
 
 def create_app(db_url=None):
     app = Flask(__name__)
+    load_dotenv()
 
     # Creo que no hace falta para el response, creo que sí.. Porque también lo uso en el after_request para manejar la renovación automática
     # Chequear si hace falta poner origins y que sea solo para el Front
@@ -73,6 +72,7 @@ def create_app(db_url=None):
     @jwt.token_in_blocklist_loader
     def check_if_token_in_blocklist(jwt_header, jwt_payload):
         return jwt_payload["jti"] in BLOCKLIST
+    # Seguir la doc para aplicar en proyecto original
 
     @jwt.revoked_token_loader
     def revoked_token_callback(jwt_header, jwt_payload):
@@ -86,9 +86,10 @@ def create_app(db_url=None):
     @jwt.additional_claims_loader
     def add_claims_to_jwt(identity):
         # Esta función agrega información al JWT. La verificación del Admin sería usando el identity(ID) recibido con el id del User en la DB
-        if identity == 7:
-            return {"is_admin": True}
-        return {"is_admin": False}
+        # El tipo de perfil lo verificaríamos en cada vista, consultando desde el ID
+        user = UserModel.query.get(identity)
+
+        return {"is_admin": user.perfil == 'admin'}
 
     @jwt.expired_token_loader
     def expired_token_callback(jwt_header, jwt_payload):

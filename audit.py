@@ -46,6 +46,8 @@ def register_audit_events(db):
         for obj in session.deleted:
             if isinstance(obj, (StoreModel, ItemModel, TagModel)):
                 operation = 'DELETE'
+                # values_before = json.dumps(
+                #     getattr(obj, '_previous_values', {}))
                 values = json.dumps({c.name: getattr(obj, c.name)
                                     for c in obj.__table__.columns})
                 log_audit_event(obj, operation, user_id, values, None)

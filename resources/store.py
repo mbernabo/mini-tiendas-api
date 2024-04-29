@@ -31,9 +31,8 @@ class StoresAPI(MethodView):
     def post(self, data):
         user_id = get_jwt_identity()
         new_store = StoreModel(user_id=user_id, **data)
-        db.session.info['user_id'] = user_id
         db.session.add(new_store)
-        intentar_commit()
+        intentar_commit(user_id)
 
         return new_store
 
@@ -63,7 +62,7 @@ class StoreAPI(MethodView):
         user_id = get_jwt_identity()
         if store.user_id == user_id:
             db.session.delete(store)
-            intentar_commit()
+            intentar_commit(user_id)
             return {'message': 'Tienda borrada exitosamente'}
         else:
             abort(401, message='No tiene derechos para realizar esta acción')

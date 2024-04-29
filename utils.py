@@ -5,7 +5,9 @@ from db import db
 from models import Auditoria
 
 
-def intentar_commit():
+def intentar_commit(user_id=None):
+    db.session.info['user_id'] = user_id
+
     try:
         db.session.commit()
     except SQLAlchemyError as e:
