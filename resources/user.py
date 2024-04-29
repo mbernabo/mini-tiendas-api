@@ -61,6 +61,15 @@ class UserLoginAPI(MethodView):
             abort(401, message='Credenciales inválidas')
 
 
+@blp.route('/user/check-admin')
+class UserCheckAdmin(MethodView):
+    @blp.doc(description="Chequea si un usuario autenticado es administrador", summary='Chequea si el usuario es Admin')
+    @blp.response(200)
+    @jwt_required()
+    def get(self):
+        return {'is_admin': get_jwt()['is_admin']}
+
+
 @blp.route('/refresh')
 class TokenRefreshAPI(MethodView):
     @blp.doc(description="Genera un non-fresh token", summary='Genera Non Fresh Tokens')
