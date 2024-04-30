@@ -5,7 +5,17 @@ from db import db
 from models import Auditoria
 
 
-def intentar_commit(user_id=None):
+def intentar_commit(user_id: int = None):
+    """
+    Intenta confirmar los cambios en la sesión de la base de datos y asigna el user_id proporcionado a la sesión.
+
+    Args:
+        user_id (int, opcional): El ID del usuario que está realizando la acción. Por defecto es None para contemplar los commits que no llevan control de auditoría
+
+    Raises:
+        HTTPException: Si se produce un error al intentar confirmar los cambios en la base de datos.
+
+    """
     db.session.info['user_id'] = user_id
 
     try:

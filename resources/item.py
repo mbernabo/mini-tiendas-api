@@ -55,6 +55,7 @@ class ItemsApi(MethodView):
         if item.store.user_id == user_id:
             # Reviso si el item pertenece al store que envía el cliente:
             if item.store_id == data.get('store_id'):
+                # Establezco los nuevos valores de los atributos de item
                 for key, value in data.items():
                     setattr(item, key, value)
             else:
