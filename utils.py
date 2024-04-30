@@ -17,16 +17,23 @@ def intentar_commit(user_id=None):
 
 
 def log_audit_event(obj, operation, user_id, values_before={}, values_after={}):
-    # Aquí puedes implementar la lógica para guardar el evento de auditoría en la base de datos
-    # Por ejemplo:
+    tabla_origen = obj.__tablename__
+    registro_id = obj.id
+
+    ultima_pista = Auditoria.query.filter_by(
+        tabla_origen=tabla_origen, registro_id=registro_id).order_by(Auditoria.version.desc()).first()
+
+    version = ultima_pista.version + 1 if ultima_pista else 1
+
     audit_entry = Auditoria(
-        user_id=user_id,  # Asume que tienes una variable 'current_user' disponible
-        tabla_origen=obj.__tablename__,
-        registro_id=obj.id,
+        user_id=user_id,
+        tabla_origen=tabla_origen,
+        registro_id=registro_id,
         operacion=operation,
         fecha=datetime.now(),
         valores_originales=values_before,
-        valores_nuevos=values_after
+        valores_nuevos=values_after,
+        version=version
     )
     db.session.add(audit_entry)
     # db.session.commit() // No hace falta y es preferible que dependa de un rollback general

@@ -15,7 +15,6 @@ class AuditTrail(MethodView):
     @blp.response(200, AuditoriaSchema(many=True))
     @jwt_required()
     def get(self):
-        print(get_jwt())
         is_admin = get_jwt()['is_admin']
         if is_admin:
             return Auditoria.query.all()

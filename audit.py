@@ -12,8 +12,9 @@ def register_audit_events(db):
     def before_flush(session, flush_context, instances):
         for obj in session.dirty:
             if isinstance(obj, (StoreModel, ItemModel, TagModel)):
-                # get_history devuelve el primer elemento de la lista de objetos borrados para un atributo
-                # sólo si el attr tuvo cambios, sino, devuelve el valor original
+                # get_history devuelve aquí el primer elemento de la lista de objetos borrados para un atributo 
+                # (está en formato de lista pero debería ser siempre sólo un valor)
+                # Reviso también si tuvo cambios, sólo si el attr tuvo cambios, sino, devuelve el valor original
                 obj._previous_values = {
                     c.name: (
                         get_history(obj, c.name).deleted[0] if get_history(obj, c.name).has_changes()
