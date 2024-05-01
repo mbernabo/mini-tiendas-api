@@ -39,6 +39,7 @@ def register_audit_events(db):
                 operation = 'UPDATE'
                 values_before = json.dumps(
                     getattr(obj, '_previous_values', {}))
+                # Por como está diseñado, yo hago el update sobre todos los valores, repitiendo lo que fueron vueltos a cargar igual en el Form
                 values_after = json.dumps(
                     {c.name: getattr(obj, c.name) for c in obj.__table__.columns})
                 log_audit_event(obj, operation, user_id,

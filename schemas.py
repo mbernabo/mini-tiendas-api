@@ -15,6 +15,7 @@ class PlainStoreSchema(Schema):
     name = fields.Str(required=True, validate=validate.Length(
         min=3, max=70, error=error_messages['length']))
     description = fields.Str(required=True)
+    user_id = fields.Int(dump_only=True)
 
 
 class PlainItemSchema(Schema):
@@ -84,6 +85,7 @@ class SQLAlchemyErrorSchema(Schema):
 class LoginSchema(Schema):
     access_token = fields.Str(dump_only=True)
     refresh_token = fields.Str(dump_only=True)
+    user_id = fields.Int(dump_only=True)
 
 
 class RefreshSchema(Schema):
