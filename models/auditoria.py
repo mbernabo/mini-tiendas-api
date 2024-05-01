@@ -10,6 +10,8 @@ class Auditoria(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     tabla_origen = db.Column(db.String, nullable=False)
     registro_id = db.Column(db.Integer, nullable=False)
+    tabla_asociada = db.Column(db.String)
+    registro_asociado = db.Column(db.Integer)
     operacion = db.Column(db.String, nullable=False)
     version = db.Column(db.Integer)
     fecha = db.Column(db.DateTime, nullable=False)

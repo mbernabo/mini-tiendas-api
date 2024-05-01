@@ -97,9 +97,18 @@ class AuditoriaSchema(Schema):
     user_id = fields.Int()
     tabla_origen = fields.Str()
     registro_id = fields.Int()
+    tabla_asociada = fields.Str()
+    registro_asociado = fields.Int()
     operacion = fields.Str()
     version = fields.Int()
     fecha = fields.NaiveDateTime()
     comentarios = fields.Str()
     valores_originales = fields.Raw()
     valores_nuevos = fields.Raw()
+
+
+class DetailedAuditoriaSchema(Schema):
+    nombre_usuario = fields.Str()
+    nombre_original_tienda = fields.Str()
+    fecha_creacion = fields.Str()
+    pista_id = fields.Int()
