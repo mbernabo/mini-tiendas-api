@@ -91,20 +91,24 @@ class LoginSchema(Schema):
 class RefreshSchema(Schema):
     access_token = fields.Str(dump_only=True)
 
-
-class AuditoriaSchema(Schema):
-    id = fields.Int()
-    user_id = fields.Int()
+class SimpleAuditoriaSchema(Schema):
     tabla_origen = fields.Str()
-    registro_id = fields.Int()
-    tabla_asociada = fields.Str()
-    registro_asociado = fields.Int()
     operacion = fields.Str()
     version = fields.Int()
     fecha = fields.NaiveDateTime()
     comentarios = fields.Str()
     valores_originales = fields.Raw()
     valores_nuevos = fields.Raw()
+
+
+class AuditoriaSchema(SimpleAuditoriaSchema):
+    id = fields.Int()
+    user_id = fields.Int()
+    tabla_origen = fields.Str()
+    registro_id = fields.Int()
+    tabla_asociada = fields.Str()
+    registro_asociado = fields.Int()
+    
 
 
 class DetailedAuditoriaSchema(Schema):

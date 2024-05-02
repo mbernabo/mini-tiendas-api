@@ -29,11 +29,12 @@ def intentar_commit(user_id: int = None):
 def log_audit_event(obj, operation, user_id, values_before={}, values_after={}):
     tabla_origen = obj.__tablename__
     registro_id = obj.id
+    store_id = obj.store_id if hasattr(obj, 'store_id') else None
 
     registros_asociados_por_tabla_origen = {
-        'stores': [None, None],
-        'items': ['stores', obj.store_id],
-        # 'tags': ['items', obj.item_id]
+        'stores': (None, None),
+        'items': ('stores', store_id),
+        # 'tags': ()'items', obj.item_id)
     }
 
     tabla_asociada, registro_asociado = registros_asociados_por_tabla_origen.get(tabla_origen)

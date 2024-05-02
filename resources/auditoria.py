@@ -3,7 +3,7 @@ from flask_smorest import Blueprint, abort
 from flask_jwt_extended import jwt_required, get_jwt
 import simplejson as json
 
-from schemas import AuditoriaSchema, DetailedAuditoriaSchema
+from schemas import AuditoriaSchema, DetailedAuditoriaSchema, SimpleAuditoriaSchema
 from models import Auditoria, UserModel
 from utils import seleccionarModelo
 
@@ -55,19 +55,23 @@ class AuditTiendas(MethodView):
         else:
             abort(401, message="No tiene privilegios para acceder a esta ruta")
 
+
 @blp.route('/auditoria/pista/<int:pista_id>')
 class AuditTrail(MethodView):
-    @blp.doc(description='Devuelve la historia de auditoría desde una tabla versión 1', summary='Devuelve la historia completa de una pista')
-    @blp.response(200)
+    @blp.doc(description='Devuelve la historia de auditoría de una Tienda desde la creación - versión 1', summary='Devuelve la historia completa de una Tienda')
+    @blp.response(200, SimpleAuditoriaSchema(many=True))
     @jwt_required()
     def get(self, pista_id):
         is_admin = get_jwt()['is_admin']
         if is_admin:
             pista = Auditoria.query.get_or_404(pista_id)
-            eventos_tabla = Auditoria.query.filter(Auditoria.tabla_origen == pista.tabla_origen, Auditoria.registro_id == pista.registro_id).order_by(Auditoria.fecha).all()
-            
-            registro_id = pista.registro_id
-            tabla = modelo.query.get(registro_id)
+            # Usar la tabla_origen y tabla_asociada garantiza que sea el registro correcto,
+            # Pero en el caso de 'stores' no tienen tabla asociada. Ver como resolver.
+            eventos_tabla = Auditoria.query.filter(Auditoria.tabla_origen == pista.tabla_origen, Auditoria.registro_id == pista.registro_id).all()
+            eventos_tabla_asociada = Auditoria.query.filter(Auditoria.registro_asociado == pista.registro_id).all()
+            eventos_por_fecha = sorted(eventos_tabla + eventos_tabla_asociada, key=lambda evento: evento.fecha)
+
+            return eventos_por_fecha 
             
 
         
