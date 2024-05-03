@@ -67,11 +67,16 @@ class AuditTrail(MethodView):
             pista = Auditoria.query.get_or_404(pista_id)
             # Usar la tabla_origen y tabla_asociada garantiza que sea el registro correcto,
             # Pero en el caso de 'stores' no tienen tabla asociada. Ver como resolver.
-            eventos_tabla = Auditoria.query.filter(Auditoria.tabla_origen == pista.tabla_origen, Auditoria.registro_id == pista.registro_id).all()
-            eventos_tabla_asociada = Auditoria.query.filter(Auditoria.registro_asociado == pista.registro_id).all()
-            eventos_por_fecha = sorted(eventos_tabla + eventos_tabla_asociada, key=lambda evento: evento.fecha)
+            # Edit: le pongo 'items' por defecto a 'stores' ya que es la única correspondencia.
+            
+            if pista.tabla_origen == 'stores':
+                eventos_tabla = Auditoria.query.filter(Auditoria.tabla_origen == pista.tabla_origen, Auditoria.registro_id == pista.registro_id).all()
+                eventos_tabla_asociada = Auditoria.query.filter(Auditoria.tabla_origen == pista.tabla_asociada, Auditoria.registro_asociado == pista.registro_id).all()
+                eventos_por_fecha = sorted(eventos_tabla + eventos_tabla_asociada, key=lambda evento: evento.fecha)
 
-            return eventos_por_fecha 
+                return eventos_por_fecha 
+            else:
+                abort(400, message='En esta ruta sólo se permite procesar pistas de Auditoría de Tiendas')
             
 
         
