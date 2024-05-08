@@ -2,6 +2,7 @@ from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from flask_jwt_extended import jwt_required, get_jwt
 import simplejson as json
+from sqlalchemy import or_
 
 from schemas import AuditoriaSchema, DetailedAuditoriaSchema, SimpleAuditoriaSchema
 from models import Auditoria, UserModel
@@ -17,7 +18,7 @@ class AuditTrails(MethodView):
 
     @blp.doc(description="Hace un query.all() sobre el Modelo Auditoría", summary='Devuelve todos las pistas de auditoría')
     @blp.response(200, AuditoriaSchema(many=True))
-    @jwt_required()
+    @jwt_required(fresh=True)
     def get(self):
         is_admin = get_jwt()['is_admin']
         if is_admin:
@@ -60,7 +61,7 @@ class AuditTiendas(MethodView):
 class AuditTrail(MethodView):
     @blp.doc(description='Devuelve la historia de auditoría de una Tienda desde la creación - versión 1', summary='Devuelve la historia completa de una Tienda')
     @blp.response(200, SimpleAuditoriaSchema(many=True))
-    @jwt_required()
+    @jwt_required(fresh=True)
     def get(self, pista_id):
         is_admin = get_jwt()['is_admin']
         if is_admin:
@@ -68,15 +69,20 @@ class AuditTrail(MethodView):
             # Usar la tabla_origen y tabla_asociada garantiza que sea el registro correcto,
             # Pero en el caso de 'stores' no tienen tabla asociada. Ver como resolver.
             # Edit: le pongo 'items' por defecto a 'stores' ya que es la única correspondencia.
-            
+
             if pista.tabla_origen == 'stores':
-                eventos_tabla = Auditoria.query.filter(Auditoria.tabla_origen == pista.tabla_origen, Auditoria.registro_id == pista.registro_id).all()
-                eventos_tabla_asociada = Auditoria.query.filter(Auditoria.tabla_origen == pista.tabla_asociada, Auditoria.registro_asociado == pista.registro_id).all()
-                eventos_por_fecha = sorted(eventos_tabla + eventos_tabla_asociada, key=lambda evento: evento.fecha)
+                eventos_por_fecha = Auditoria.query.filter(
+                    or_(
+                        (Auditoria.tabla_origen == pista.tabla_origen) & (
+                            Auditoria.registro_id == pista.registro_id),
+                        (Auditoria.tabla_origen == pista.tabla_asociada) & (
+                            Auditoria.registro_asociado == pista.registro_id)
+                    )
+                ).order_by(Auditoria.fecha).all()
 
-                return eventos_por_fecha 
+                return eventos_por_fecha
             else:
-                abort(400, message='En esta ruta sólo se permite procesar pistas de Auditoría de Tiendas')
-            
-
-        
+                abort(
+                    400, message='En esta ruta sólo se permite procesar pistas de Auditoría de Tiendas')
+        else:
+            abort(401, message='No tiene privilegios para acceder a esta ruta')

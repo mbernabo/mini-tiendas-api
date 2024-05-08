@@ -4,7 +4,7 @@ from flask_smorest import Blueprint, abort
 from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity, jwt_required, get_jwt, set_access_cookies, set_refresh_cookies, get_current_user
 
 from db import db
-from schemas import UserSchema, SQLAlchemyErrorSchema, LoginSchema, RefreshSchema
+from schemas import UserSchema, SQLAlchemyErrorSchema, LoginSchema, RefreshSchema, SimpleLoginSchema, CheckAdminSchema
 from models import UserModel
 from utils import intentar_commit
 from blocklist import BLOCKLIST
@@ -56,17 +56,31 @@ class UserLoginAPI(MethodView):
         if user and user.password == data['password']:
             access_token = create_access_token(identity=user.id, fresh=True)
             refresh_token = create_refresh_token(user.id)
-            return {"access_token": access_token, "refresh_token": refresh_token, "user_id": user.id}
+            return {"access_token": access_token, "refresh_token": refresh_token, "user_id": user.id, "email": user.email}
         else:
             abort(401, message='Credenciales inválidas')
+
+
+@blp.route('/users/check-login')
+class CheckLoginStatus(MethodView):
+    @blp.doc(description="Revisa si un usuario tiene un JWT válido y devuelve su información", summary='User Check Login')
+    @blp.response(200, SimpleLoginSchema)
+    @jwt_required()
+    def get(self):
+        user_id = get_jwt_identity()
+        user = UserModel.query.get(user_id)
+        print(user)
+        print(user.__repr__)
+        return {'user_id': user.id, 'email': user.email}
 
 
 @blp.route('/user/check-admin')
 class UserCheckAdmin(MethodView):
     @blp.doc(description="Chequea si un usuario autenticado es administrador", summary='Chequea si el usuario es Admin')
-    @blp.response(200)
+    @blp.response(200, CheckAdminSchema)
     @jwt_required()
     def get(self):
+        print(get_jwt())
         return {'is_admin': get_jwt()['is_admin']}
 
 

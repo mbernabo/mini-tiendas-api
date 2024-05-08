@@ -82,14 +82,26 @@ class SQLAlchemyErrorSchema(Schema):
     status = fields.Str()
 
 
-class LoginSchema(Schema):
-    access_token = fields.Str(dump_only=True)
-    refresh_token = fields.Str(dump_only=True)
-    user_id = fields.Int(dump_only=True)
+# Estos en realidad no hacen falta porque son solo dump y no son objetos, aunque sirven para la documentación
+# Saco el dump only porque sólo los uso para Response
+
+
+class SimpleLoginSchema(Schema):
+    user_id = fields.Int()
+    email = fields.Str()
+
+
+class LoginSchema(SimpleLoginSchema):
+    access_token = fields.Str()
+    refresh_token = fields.Str()
+
+
+class CheckAdminSchema(Schema):
+    is_admin = fields.Bool()
 
 
 class RefreshSchema(Schema):
-    access_token = fields.Str(dump_only=True)
+    access_token = fields.Str()
 
 
 class SimpleAuditoriaSchema(Schema):

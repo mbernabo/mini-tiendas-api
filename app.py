@@ -53,6 +53,7 @@ def create_app(db_url=None):
     # app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
     # app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1) #
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=100)
+    # El refresh_token por defecto es de 30 días
 
     # Pruebas fucking cookies
     # app.config['JWT_COOKIE_SAMESITE'] = 'None'
@@ -140,19 +141,20 @@ def create_app(db_url=None):
     api.register_blueprint(UserBlueprint)
     api.register_blueprint(AuditoriaBlueprint)
 
-    @app.after_request
-    def refresh_expiring_jwts(response):
-        try:
-            exp_timestamp = get_jwt()["exp"]
-            now = datetime.now(timezone.utc)
-            target_timestamp = datetime.timestamp(now + timedelta(minutes=30))
-            if target_timestamp > exp_timestamp:
-                access_token = create_access_token(
-                    identity=get_jwt_identity(), fresh=False)
-                set_access_cookies(response, access_token)
-            return response
-        except (RuntimeError, KeyError):
-            # Case where there is not a valid JWT. Just return the original response
-            return response
+    # After Request para setear un token nuevo automáticamente en las cookies
+    # @app.after_request
+    # def refresh_expiring_jwts(response):
+    #     try:
+    #         exp_timestamp = get_jwt()["exp"]
+    #         now = datetime.now(timezone.utc)
+    #         target_timestamp = datetime.timestamp(now + timedelta(minutes=30))
+    #         if target_timestamp > exp_timestamp:
+    #             access_token = create_access_token(
+    #                 identity=get_jwt_identity(), fresh=False)
+    #             set_access_cookies(response, access_token)
+    #         return response
+    #     except (RuntimeError, KeyError):
+    #         # Case where there is not a valid JWT. Just return the original response
+    #         return response
 
     return app
