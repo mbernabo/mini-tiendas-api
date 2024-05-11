@@ -41,6 +41,10 @@ class ItemSchema(PlainItemSchema):
     store = fields.Nested(PlainStoreSchema(), dump_only=True)
 
 
+class SearchItem(Schema):
+    q = fields.Str(required=True)
+
+
 class ItemUpdateSchema(Schema):
     name = fields.Str()
     price = fields.Float()

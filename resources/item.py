@@ -3,7 +3,7 @@ from flask_smorest import Blueprint, abort
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from db import db
-from schemas import ItemSchema, SQLAlchemyErrorSchema
+from schemas import ItemSchema, SearchItem
 from models import ItemModel, StoreModel
 from utils import intentar_commit
 
@@ -78,3 +78,14 @@ class ItemsApi(MethodView):
             return {'message': 'Item borrado de forma exitosa'}
         else:
             abort(401, message='No tiene derechos para realizar esta acción')
+
+
+@blp.route('/items')
+class ItemsSearch(MethodView):
+    @blp.doc(description='Devuelve el query de búsqueda de Items', summary='Search de Items por query')
+    @blp.arguments(SearchItem, location='query')
+    @blp.response(200, ItemSchema(many=True))
+    def get(self, args):
+        query = args.get('q')
+        resultados = ItemModel.query.filter(ItemModel.name.like(f'%{query}%')).all()
+        return resultados
