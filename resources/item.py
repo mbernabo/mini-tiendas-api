@@ -87,5 +87,6 @@ class ItemsSearch(MethodView):
     @blp.response(200, ItemSchema(many=True))
     def get(self, args):
         query = args.get('q')
-        resultados = ItemModel.query.filter(ItemModel.name.like(f'%{query}%')).all()
+        # ilike es un case insensitive LIKE
+        resultados = ItemModel.query.filter(ItemModel.name.ilike(f'%{query}%')).all()
         return resultados
