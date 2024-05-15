@@ -1,8 +1,10 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
-from flask_jwt_extended import jwt_required, get_jwt
+from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity
 import simplejson as json
-from sqlalchemy import or_
+from sqlalchemy import or_, func
+from sqlalchemy.orm import aliased
+from db import db
 
 from schemas import AuditoriaSchema, DetailedAuditoriaSchema, SimpleAuditoriaSchema
 from models import Auditoria, UserModel
@@ -22,7 +24,27 @@ class AuditTrails(MethodView):
     def get(self):
         is_admin = get_jwt()['is_admin']
         if is_admin:
-            return Auditoria.query.order_by(Auditoria.fecha).all()
+            user_id = get_jwt_identity()
+            user = UserModel.query.get(user_id)
+            user_time_zone = user.zona_horaria.nombre
+            # Query original que no funciona:
+            # return db.session.query(Auditoria).order_by(func.timezone(user_time_zone, Auditoria.fecha)).all()
+            # Variante más larga que sí funciona:
+            results = db.session.query(Auditoria, func.timezone(
+                user_time_zone, Auditoria.fecha).label('fecha_tz')).order_by(Auditoria.fecha).all()
+            
+            # Construir una lista de objetos Auditoria con la columna extra fecha_tz
+            auditorias_with_tz = []
+            for result in results:
+                auditoria = result[0]  # Objeto Auditoria
+                fecha_tz = result[1]   # Valor de fecha_tz
+                # Agregar fecha_tz al objeto Auditoria
+                setattr(auditoria, 'fecha_tz', fecha_tz)
+                auditorias_with_tz.append(auditoria)
+
+            # Devolver la lista de objetos Auditoria modificados
+            return auditorias_with_tz
+
         else:
             abort(401, message="No tiene privilegios para acceder a esta ruta")
 

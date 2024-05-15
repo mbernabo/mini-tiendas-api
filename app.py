@@ -52,7 +52,8 @@ def create_app(db_url=None):
     # app.config["JWT_COOKIE_SECURE"] = True
     # app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
     # app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1) #
-    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=100)
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=100) # Este por defecto es 15 minutos
+    
     # El refresh_token por defecto es de 30 días
 
     # Pruebas fucking cookies

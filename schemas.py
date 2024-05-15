@@ -114,7 +114,9 @@ class SimpleAuditoriaSchema(Schema):
     tabla_origen = fields.Str()
     operacion = fields.Str()
     version = fields.Int()
-    fecha = fields.NaiveDateTime()
+    # Ver después que ya podría formatear la fecha desde acá - Hecho
+    fecha = fields.DateTime(format='%Y-%m-%d %H:%M:%S')
+    fecha_tz = fields.DateTime(format='%Y-%m-%d %H:%M:%S')
     comentarios = fields.Str()
     valores_originales = fields.Raw()
     valores_nuevos = fields.Raw()

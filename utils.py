@@ -52,7 +52,7 @@ def log_audit_event(obj, operation, user_id, values_before={}, values_after={}):
         tabla_asociada=tabla_asociada,
         registro_asociado=registro_asociado,
         operacion=operation,
-        fecha=datetime.now(),
+        # fecha=datetime.now(), Ya tiene el default en la declaración de la Tabla
         valores_originales=values_before,
         valores_nuevos=values_after,
         version=version
