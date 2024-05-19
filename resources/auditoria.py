@@ -8,7 +8,7 @@ from db import db
 
 from schemas import AuditoriaSchema, DetailedAuditoriaSchema, SimpleAuditoriaSchema
 from models import Auditoria, UserModel
-from utils import seleccionarModelo
+# from utils import seleccionarModelo
 
 
 blp = Blueprint('Auditoría', __name__,

@@ -54,7 +54,7 @@ class UserLoginAPI(MethodView):
     def post(self, data):
         user = UserModel.query.filter_by(email=data['email']).first()
         if user and user.password == data['password']:
-            access_token = create_access_token(identity=user.id, fresh=True)
+            access_token = create_access_token(identity=user.id, fresh=True) # Se puede pasar también un timedelta para el freshness
             refresh_token = create_refresh_token(user.id)
             return {"access_token": access_token, "refresh_token": refresh_token, "user_id": user.id, "email": user.email}
         else:
@@ -91,7 +91,7 @@ class TokenRefreshAPI(MethodView):
     @jwt_required(refresh=True)
     def post(self):
         current_user = get_jwt_identity()
-        new_token = create_access_token(identity=current_user, fresh=False)
+        new_token = create_access_token(identity=current_user) # fresh es default to False
 
         return {'access_token': new_token}
 
